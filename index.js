@@ -84,8 +84,6 @@ const removeEventListener = (event) => {
 export default {
   scheduleLocalNotification,
   cancelAllLocalNotifications,
-  setApplicationIconBadgeNumber,
-  getApplicationIconBadgeNumber,
   cancelLocalNotifications,
   getScheduledLocalNotifications,
   addEventListener,
