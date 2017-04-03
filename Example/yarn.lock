@@ -2893,8 +2893,9 @@ react-deep-force-update@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-1.0.1.tgz#f911b5be1d2a6fe387507dd6e9a767aa2924b4c7"
 
-"react-native-push-android@file:////Users/helder/devel/git/pessoal/react-native-push-android":
+"react-native-push-android@git+https://github.com/helderfarias/react-native-push-android.git":
   version "1.0.0"
+  resolved "git+https://github.com/helderfarias/react-native-push-android.git#9e54e5254b9f9ea1079275b04d23763adf820953"
 
 react-native@0.42.3:
   version "0.42.3"
