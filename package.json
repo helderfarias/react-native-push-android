@@ -1,0 +1,18 @@
+
+{
+  "name": "react-native-push-android",
+  "version": "1.0.0",
+  "description": "Push Notification Android with FCM",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native"
+  ],
+  "author": "Helder Farias",
+  "license": "MIT",
+  "peerDependencies": {
+    "react-native": ">=0.40.0"
+  }
+}

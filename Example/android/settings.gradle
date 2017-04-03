@@ -1,0 +1,5 @@
+rootProject.name = 'Example'
+include ':react-native-push-android'
+project(':react-native-push-android').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-push-android/android')
+
+include ':app'
