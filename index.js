@@ -39,12 +39,7 @@ const unsubscribeFromTopic = (topic) => {
 }
 
 const notify = (details) => {
-  const eventSource = {
-    ...details,
-    show_in_foreground: true,
-  };
-
-  RNPushAndroid.sendLocalNotification(eventSource);
+  RNPushAndroid.sendLocalNotification(details);
 }
 
 const addEventListener = (event, callback) => {
