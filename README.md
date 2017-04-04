@@ -102,7 +102,8 @@
 
 * static getInitialNotification()
 ```
-  This method returns a promise that resolves to either the notification object if the app was launched by a push notification, or null otherwise.
+  This method returns a promise that resolves to either 
+  the notification object if the app was launched by a push notification, or null otherwise.
 ```
 
 * static getToken()
