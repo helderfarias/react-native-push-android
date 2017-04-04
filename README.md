@@ -31,6 +31,7 @@
 ```diff
  dependencies {
     ...
+    classpath 'com.android.tools.build:gradle:2.0.0'
 +   classpath 'com.google.gms:google-services:3.0.0'
     ...
 ```
@@ -38,6 +39,7 @@
 * Step 2 - Edit $PROJECT_NAME/android/app/build.gradle
 ```diff
     ...
+    apply plugin: "com.android.application"
 +   apply plugin: 'com.google.gms.google-services'
     ...
 ```
@@ -51,6 +53,8 @@
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
       android:theme="@style/AppTheme">
++       <receiver android:name="br.com.helderfarias.pushandroid.LocalMessagingReceiver" />
+
 +       <receiver android:enabled="true" android:exported="true"
 +           android:name="br.com.helderfarias.pushandroid.SystemBootEventReceiver">
 +           <intent-filter>
@@ -96,9 +100,68 @@
 
 ## Usage
 ```javascript
-import RNPushAndroid from 'react-native-push-android';
+import React, { Component } from "react";
+import { AppRegistry, Text, TouchableOpacity, View } from "react-native";
+import PushNotificationAndroid from 'react-native-push-android';
 
-// TODO: What to do with the module?
-RNPushAndroid;
+export default class Example extends Component {
+
+  state = {
+    token: null
+  };
+
+  componentWillMount() {
+    PushNotificationAndroid.getInitialNotification().then(initial => {
+      console.log('getInitialNotification => ', initial);
+    });
+
+    PushNotificationAndroid.getToken().then(token => {
+      this.setState({ token: token });
+    });
+    
+    PushNotificationAndroid.addEventListener('localNotification', (details) => {
+      console.log('localNotification => ', details);
+    });
+
+    PushNotificationAndroid.addEventListener('notification', (details) => {
+      console.log('remoteNotification => ', details);
+    });
+
+    PushNotificationAndroid.addEventListener('refreshToken', (token) => {
+      console.log('remoteRefreshToken => ', token);
+    });
+  }
+
+  componentWillUnMount() {
+    PushNotificationAndroid.removeEventListener('localNotification');
+    PushNotificationAndroid.removeEventListener('notification');
+    PushNotificationAndroid.removeEventListener('refreshToken'); 
+  }
+
+  sendLocalNotificationNormal = () => {    
+    PushNotificationAndroid.notify({
+      "title": "title",
+      "body": "body",
+      "priority": "high",
+      "click_action": "fcm.ACTION.HELLO"
+    });
+  }  
+
+  render() {
+    let { token } = this.state;
+
+    return (
+      <View>
+        <Text>Token: {this.state.token}</Text>
+
+        <TouchableOpacity onPress={this.sendLocalNotificationNormal}>
+          <Text>Local Notification</Text>
+        </TouchableOpacity>        
+      </View>
+    );
+  }
+}
+
+AppRegistry.registerComponent("Example", () => Example);
 ```
   
