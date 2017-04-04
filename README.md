@@ -28,22 +28,22 @@
 ## Configuration
 
 * Step 1 - Edit $PROJECT_NAME/android/build.gradle
-```bash
+```diff
  dependencies {
     ...
-    classpath 'com.google.gms:google-services:3.0.0'
+    +classpath 'com.google.gms:google-services:3.0.0'
     ...
 ```
 
 * Step 2 - Edit $PROJECT_NAME/android/app/build.gradle
-```bash
+```diff
     ...
-    apply plugin: 'com.google.gms.google-services'
+    +apply plugin: 'com.google.gms.google-services'
     ...
 ```
 
 * Step 3 - Edit android/app/src/main/AndroidManifest.xml
-```bash
+```diff
     ...
     <application
       android:name=".MainApplication"
@@ -51,30 +51,30 @@
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
       android:theme="@style/AppTheme">
-        <receiver android:name="br.com.helderfarias.pushandroid.LocalMessagingReceiver" />
+        +<receiver android:name="br.com.helderfarias.pushandroid.LocalMessagingReceiver" />
 
-        <receiver android:enabled="true" android:exported="true"
-            android:name="br.com.helderfarias.pushandroid.SystemBootEventReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
-                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </receiver>
+        +<receiver android:enabled="true" android:exported="true"
+        +    android:name="br.com.helderfarias.pushandroid.SystemBootEventReceiver">
+        +    <intent-filter>
+        +        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        +        <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+        +        <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+        +        <category android:name="android.intent.category.DEFAULT" />
+        +    </intent-filter>
+        +</receiver>
 
-        <service android:name="br.com.helderfarias.pushandroid.MessagingService">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
-            </intent-filter>
-        </service>
+        +<service android:name="br.com.helderfarias.pushandroid.MessagingService">
+        +    <intent-filter>
+        +        <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+        +    </intent-filter>
+        +</service>
 
-        <service android:name="br.com.helderfarias.pushandroid.InstanceIdService" 
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
-            </intent-filter>
-        </service>
+        +<service android:name="br.com.helderfarias.pushandroid.InstanceIdService" 
+        +    android:exported="false">
+        +    <intent-filter>
+        +        <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+        +    </intent-filter>
+        +</service>
             
         <activity
             android:name=".MainActivity"
@@ -85,10 +85,10 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="fcm.ACTION.HELLO" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>        
+            +<intent-filter>
+            +    <action android:name="fcm.ACTION.HELLO" />
+            +    <category android:name="android.intent.category.DEFAULT" />
+            +</intent-filter>        
         </activity>
 
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
