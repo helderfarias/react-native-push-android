@@ -100,9 +100,34 @@
 
 ## Methods
 
-* static scheduleLocalNotification(details)'
+* static getInitialNotification()
 ```
-  Schedules the localNotification for future presentation.
+  This method returns a promise that resolves to either the notification object if the app was launched by a push notification, or null otherwise.
+```
+
+* static getToken()
+```
+  This method returns a promise with refresh token fcm, or null otherwise.
+```
+
+* static addEventListener(event)
+```
+  Attaches a listener to remote or local notification events for app.
+
+  Valid events are:
+    - localNotification: Fired when a local notification is received.
+    - notification: Fired when a remote notification is received by fcm. 
+    - refreshToken: Fired when a remote token refreshed.
+```
+
+* static removeEventListener(event, callback)
+```
+  Removes the event listener. Do this in componentWillUnmount to prevent memory leaks.
+```
+
+* static notify(details)
+```
+  Create localNotification.
   
   details is an object containing:
     - title
