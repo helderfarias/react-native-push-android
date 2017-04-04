@@ -1,7 +1,6 @@
 package br.com.helderfarias.pushandroid;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 
@@ -15,20 +14,20 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
-import com.google.firebase.messaging.RemoteMessage.Notification;
 
 import android.os.Bundle;
 import android.util.Log;
 
-import android.content.Context;
-
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+
+import br.com.helderfarias.pushandroid.handlers.LocalMessageHandler;
+import br.com.helderfarias.pushandroid.handlers.RemoteMessageHandler;
+import br.com.helderfarias.pushandroid.handlers.RemoteTokenRefreshHandler;
+import br.com.helderfarias.pushandroid.helpers.ConverterHelper;
+import br.com.helderfarias.pushandroid.helpers.EventManagerHelper;
+import br.com.helderfarias.pushandroid.helpers.NotificationHelper;
 
 public class RNPushAndroidModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
 
@@ -36,12 +35,20 @@ public class RNPushAndroidModule extends ReactContextBaseJavaModule implements L
 
     private final NotificationHelper notificationHelper;
     private final ReactApplicationContext reactContext;
+    private final EventManagerHelper eventManager;
+    private final RemoteMessageHandler remoteMessageHandler;
+    private final LocalMessageHandler localMessageHandler;
+    private final RemoteTokenRefreshHandler remoteTokenRefreshHandler;
     private boolean inForeground;
 
     public RNPushAndroidModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
         this.notificationHelper = new NotificationHelper(this.reactContext);
+        this.eventManager = new EventManagerHelper(this.reactContext);
+        this.remoteMessageHandler = new RemoteMessageHandler(this.reactContext, this.eventManager);
+        this.localMessageHandler = new LocalMessageHandler(this.reactContext, this.eventManager);
+        this.remoteTokenRefreshHandler = new RemoteTokenRefreshHandler(this.reactContext, this.eventManager);
         this.reactContext.addLifecycleEventListener(this);
         this.reactContext.addActivityEventListener(this);
         registerTokenRefreshHandler();
@@ -75,7 +82,7 @@ public class RNPushAndroidModule extends ReactContextBaseJavaModule implements L
     public void sendLocalNotification(ReadableMap details) {
         Bundle bundle = Arguments.toBundle(details);
 
-        notificationHelper.sendNotification(bundle, this.inForeground);
+        notificationHelper.sendNotification(bundle);
     }
 
     @ReactMethod
@@ -148,76 +155,25 @@ public class RNPushAndroidModule extends ReactContextBaseJavaModule implements L
     }
 
     public void onNewIntent(Intent intent) {
-        sendEvent(Constants.EVENT_NOTIFICATION_RECEIVED, parseIntent(intent));
-    }
-
-    private void sendEvent(String eventName, Object params) {
-        getReactApplicationContext()
-                .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                .emit(eventName, params);
+        this.eventManager.send(Constants.EVENT_NOTIFICATION_RECEIVED, parseIntent(intent));
     }
 
     private void registerTokenRefreshHandler() {
         IntentFilter intentFilter = new IntentFilter(Constants.INTENT_RECEIVE_REMOTE_REFRESH_TOKEN);
 
-        getReactApplicationContext().registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-            if (getReactApplicationContext().hasActiveCatalystInstance()) {
-                String token = intent.getStringExtra("token");
-                sendEvent(Constants.EVENT_TOKEN_RECEIVED, token);
-            }
-            }
-        }, intentFilter);
+        this.reactContext.registerReceiver(this.remoteTokenRefreshHandler, intentFilter);
     }
 
     private void registerMessageHandler() {
         IntentFilter intentFilter = new IntentFilter(Constants.INTENT_RECEIVE_REMOTE_NOTIFICATION);
 
-        getReactApplicationContext().registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-            if (getReactApplicationContext().hasActiveCatalystInstance()) {
-                RemoteMessage message = intent.getParcelableExtra("data");
-                WritableMap params = Arguments.createMap();
-                WritableMap fcmData = Arguments.createMap();
-
-                if (message.getNotification() != null) {
-                    Notification notification = message.getNotification();
-                    fcmData.putString("title", notification.getTitle());
-                    fcmData.putString("body", notification.getBody());
-                    fcmData.putString("color", notification.getColor());
-                    fcmData.putString("icon", notification.getIcon());
-                    fcmData.putString("tag", notification.getTag());
-                    fcmData.putString("action", notification.getClickAction());
-                }
-                params.putMap("fcm", fcmData);
-
-                if (message.getData() != null) {
-                    Map<String, String> data = message.getData();
-                    Set<String> keysIterator = data.keySet();
-                    for (String key : keysIterator) {
-                        params.putString(key, data.get(key));
-                    }
-                }
-                sendEvent(Constants.EVENT_NOTIFICATION_RECEIVED, params);
-
-            }
-            }
-        }, intentFilter);
+        this.reactContext.registerReceiver(this.remoteMessageHandler, intentFilter);
     }
 
     private void registerLocalMessageHandler() {
         IntentFilter intentFilter = new IntentFilter(Constants.INTENT_RECEIVE_LOCAL_NOTIFICATION);
 
-        getReactApplicationContext().registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-            if (getReactApplicationContext().hasActiveCatalystInstance()) {
-                sendEvent(Constants.EVENT_LOCAL_NOTIFICATION_RECEIVED, Arguments.fromBundle(intent.getExtras()));
-            }
-            }
-        }, intentFilter);
+        this.reactContext.registerReceiver(this.localMessageHandler, intentFilter);
     }
 
     private WritableMap parseIntent(Intent intent) {
@@ -227,7 +183,7 @@ public class RNPushAndroidModule extends ReactContextBaseJavaModule implements L
         fcm.putString("action", intent.getAction());
 
         params.putMap("fcm", fcm);
-        params.putInt("opened_from_tray", 1);
+        params.putBoolean("opened_from_tray", true);
         return params;
     }
 

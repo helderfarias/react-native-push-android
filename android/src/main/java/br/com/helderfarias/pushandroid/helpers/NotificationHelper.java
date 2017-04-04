@@ -1,5 +1,5 @@
 //Credits to react-native-push-notification
-package br.com.helderfarias.pushandroid;
+package br.com.helderfarias.pushandroid.helpers;
 
 import android.app.*;
 import android.content.Context;
@@ -27,6 +27,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.HttpURLConnection;
 
+import br.com.helderfarias.pushandroid.Constants;
+import br.com.helderfarias.pushandroid.LocalMessagingReceiver;
+
 public final class NotificationHelper {
 
     private static final String TAG = "NotificationCenterH";
@@ -45,10 +48,6 @@ public final class NotificationHelper {
     }
 
     public void sendNotification(Bundle bundle) {
-        this.sendNotification(bundle, false);
-    }
-
-    public void sendNotification(Bundle bundle, boolean mIsForeground) {
         try {
             Class intentClass = getMainActivityClass();
             if (intentClass == null) {
@@ -88,7 +87,7 @@ public final class NotificationHelper {
 
             configureLights(bundle, notification);
 
-            notifyLocalMessageWhenBackground(bundle, mIsForeground, intentClass, notification);
+            notifyLocalMessageWhenBackground(bundle, intentClass, notification);
 
             clearScheduleNotificationOnceFired(bundle);
         } catch (Exception e) {
@@ -142,7 +141,6 @@ public final class NotificationHelper {
             getAlarmManager().set(AlarmManager.RTC_WAKEUP, fireDate, pendingIntent);
         }
 
-        //store intent
         SharedPreferences.Editor editor = sharedConfig.edit();
         try {
             JSONObject json = ConverterHelper.fromBundleToJson(bundle);
@@ -151,6 +149,8 @@ public final class NotificationHelper {
         } catch (JSONException e) {
             Log.e(TAG, "failed storage", e);
         }
+
+        broadcastForLocalMessaging(bundle);
     }
 
     public void cancelNotification(String notificationId) {
@@ -195,7 +195,7 @@ public final class NotificationHelper {
                 Bundle bundle = ConverterHelper.fromJsonToBundle(json);
                 array.add(bundle);
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(TAG, "parse json", e);
             }
         }
         return array;
@@ -219,15 +219,7 @@ public final class NotificationHelper {
         }
     }
 
-    private void notifyLocalMessageWhenBackground(Bundle bundle, boolean isForeground, Class intentClass, NotificationCompat.Builder notification) {
-        if (!isForeground) {
-            return;
-        }
-
-        if (!bundle.getBoolean("show_in_foreground")) {
-            return;
-        }
-
+    private void notifyLocalMessageWhenBackground(Bundle bundle, Class intentClass, NotificationCompat.Builder notification) {
         Intent intent = new Intent(context, intentClass);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtras(bundle);
@@ -252,14 +244,8 @@ public final class NotificationHelper {
         } else {
             notificationManager.notify(notifyID, info);
         }
-    }
 
-    private void broadcastForLocalMessaging(Bundle bundle) {
-        Log.d(TAG, "broadcast intent before showing");
-
-        Intent i = new Intent(Constants.INTENT_RECEIVE_LOCAL_NOTIFICATION);
-        i.putExtras(bundle);
-        context.sendOrderedBroadcast(i, null);
+        broadcastForLocalMessaging(bundle);
     }
 
     private void configureLights(Bundle bundle, NotificationCompat.Builder notification) {
@@ -339,7 +325,7 @@ public final class NotificationHelper {
     }
 
     private void configurePriority(Bundle bundle, NotificationCompat.Builder notification) {
-        String priority = bundle.getString("priority", "");
+        String priority = bundle.getString("priority", "high");
 
         switch (priority) {
             case "min":
@@ -365,7 +351,7 @@ public final class NotificationHelper {
             InputStream input = connection.getInputStream();
             return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error getBitmapFromURL()", e);
             return null;
         }
     }
@@ -377,13 +363,21 @@ public final class NotificationHelper {
         try {
             return Class.forName(className);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, "error on getMainActivityClass()", e);
             return null;
         }
     }
 
     private AlarmManager getAlarmManager() {
         return (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    }
+
+    private void broadcastForLocalMessaging(Bundle bundle) {
+        Log.d(TAG, "broadcast intent before showing");
+
+        Intent i = new Intent(Constants.INTENT_RECEIVE_LOCAL_NOTIFICATION);
+        i.putExtras(bundle);
+        context.sendOrderedBroadcast(i, null);
     }
 
 }

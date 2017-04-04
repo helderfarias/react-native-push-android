@@ -1,11 +1,10 @@
-package br.com.helderfarias.pushandroid;
+package br.com.helderfarias.pushandroid.helpers;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
 import org.json.JSONArray;

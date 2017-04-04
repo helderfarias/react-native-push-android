@@ -24,24 +24,10 @@ export default class Example extends Component {
     
     PushNotificationAndroid.addEventListener('localNotification', (details) => {
       console.log('localNotification => ', details);
-
-      PushNotificationAndroid.notify({
-          "title": details.title,
-          "body": details.body,
-          "priority": details.priority,
-          "click_action": details.click_action
-      });
     });
 
     PushNotificationAndroid.addEventListener('notification', (details) => {
       console.log('remoteNotification => ', details);
-
-      PushNotificationAndroid.notify({
-          "title": details.title,
-          "body": details.body,
-          "priority": "high",
-          "click_action": details.click_action
-      });      
     });
 
     PushNotificationAndroid.addEventListener('refreshToken', (token) => {
@@ -55,7 +41,7 @@ export default class Example extends Component {
     PushNotificationAndroid.removeEventListener('refreshToken'); 
   }
 
-  sendLocalNotification = () => {
+  sendLocalNotificationFake = () => {    
     require('RCTDeviceEventEmitter').emit('FCMLocalNotificationReceived', {
       "title": "title",
       "body": "body",
@@ -64,13 +50,22 @@ export default class Example extends Component {
     });
   }
 
-  sendRemoteNotification = () => {
+  sendRemoteNotificationFake = () => {
     require('RCTDeviceEventEmitter').emit('FCMNotificationReceived', {
       "title": "title",
       "body": "notif.bod",
       "priority": "high",
       "click_action": "fcm.ACTION.HELLO"
     })
+  }  
+
+  sendLocalNotificationNormal = () => {    
+    PushNotificationAndroid.notify({
+      "title": "title",
+      "body": "body",
+      "priority": "high",
+      "click_action": "fcm.ACTION.HELLO"
+    });
   }  
 
   render() {
@@ -89,16 +84,22 @@ export default class Example extends Component {
         </Text>
 
         <TouchableOpacity 
-          onPress={this.sendLocalNotification}
+          onPress={this.sendLocalNotificationFake}
           style={styles.button}>
-          <Text style={styles.buttonText}>Local Notification</Text>
+          <Text style={styles.buttonText}>Local Notification Fake</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={this.sendRemoteNotification}
+          onPress={this.sendRemoteNotificationFake}
           style={styles.button}>
-          <Text style={styles.buttonText}>Remote Notification</Text>
+          <Text style={styles.buttonText}>Remote Notification Fake</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+          onPress={this.sendLocalNotificationNormal}
+          style={styles.button}>
+          <Text style={styles.buttonText}>Local Notification Normal</Text>
+        </TouchableOpacity>        
       </View>
     );
   }

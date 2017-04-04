@@ -1,15 +1,22 @@
 package br.com.helderfarias.pushandroid;
 
 import java.util.Map;
+import java.util.Set;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.WritableMap;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import br.com.helderfarias.pushandroid.helpers.ConverterHelper;
+import br.com.helderfarias.pushandroid.helpers.NotificationHelper;
 
 public class MessagingService extends FirebaseMessagingService {
 
@@ -30,16 +37,34 @@ public class MessagingService extends FirebaseMessagingService {
             return;
         }
 
-        Map<String, String> data = remoteMessage.getData();
+        try {
+            JSONObject params = new JSONObject();
 
-        if (data.get("custom_notification") != null){
-            try {
-                Bundle bundle = ConverterHelper.fromJsonToBundle(new JSONObject(data.get("custom_notification")));
-                NotificationHelper helper = new NotificationHelper(this.getApplication());
-                helper.sendNotification(bundle);
-            } catch (JSONException e) {
-                Log.e(TAG, "build local notification", e);
+            if (remoteMessage.getNotification() != null) {
+                RemoteMessage.Notification notification = remoteMessage.getNotification();
+                params.put("title", notification.getTitle());
+                params.put("body", notification.getBody());
+                params.put("color", notification.getColor());
+                params.put("icon", notification.getIcon());
+                params.put("tag", notification.getTag());
+                params.put("action", notification.getClickAction());
             }
+
+            if (remoteMessage.getData() != null) {
+                Map<String, String> data = remoteMessage.getData();
+                Set<String> keysIterator = data.keySet();
+                for (String key : keysIterator) {
+                    params.put(key, data.get(key));
+                }
+            }
+
+            Log.d(TAG, "params by remote message => " + params);
+
+            Bundle bundle = ConverterHelper.fromJsonToBundle(params);
+            NotificationHelper helper = new NotificationHelper(this.getApplication());
+            helper.sendNotification(bundle);
+        } catch (JSONException e) {
+            Log.e(TAG, "build local notification", e);
         }
     }
 }
