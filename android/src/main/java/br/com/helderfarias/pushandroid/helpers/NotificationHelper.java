@@ -1,4 +1,3 @@
-//Credits to react-native-push-notification
 package br.com.helderfarias.pushandroid.helpers;
 
 import android.app.*;
