@@ -31,14 +31,14 @@
 ```diff
  dependencies {
     ...
-    +classpath 'com.google.gms:google-services:3.0.0'
+    + classpath 'com.google.gms:google-services:3.0.0'
     ...
 ```
 
 * Step 2 - Edit $PROJECT_NAME/android/app/build.gradle
 ```diff
     ...
-    +apply plugin: 'com.google.gms.google-services'
+    + apply plugin: 'com.google.gms.google-services'
     ...
 ```
 
