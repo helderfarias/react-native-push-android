@@ -98,6 +98,30 @@
     ...
 ```
 
+## Methods
+
+* static scheduleLocalNotification(details)'
+```
+  Schedules the localNotification for future presentation.
+  
+  details is an object containing:
+    - title
+    - body
+    - ticket
+    - auto_cancel
+    - number
+    - sub_text
+    - group
+    - data
+    - lights
+    - priority
+    - color
+    - sound
+    - big_text
+    - icon
+    - large_icon
+```
+
 ## Usage
 ```javascript
 import React, { Component } from "react";
