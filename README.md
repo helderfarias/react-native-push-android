@@ -142,7 +142,6 @@ export default class Example extends Component {
     PushNotificationAndroid.notify({
       "title": "title",
       "body": "body",
-      "priority": "high",
       "click_action": "fcm.ACTION.HELLO"
     });
   }  
