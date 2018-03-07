@@ -155,6 +155,10 @@ import { AppRegistry, Text, TouchableOpacity, View } from "react-native";
 import PushNotificationAndroid from 'react-native-push-android';
 
 export default class Example extends Component {
+  
+  _localNotificationEvent = null;
+  _notificationEvent = null;
+  _refreshTokenEvent = null;
 
   state = {
     token: null
@@ -169,23 +173,28 @@ export default class Example extends Component {
       this.setState({ token: token });
     });
     
-    PushNotificationAndroid.addEventListener('localNotification', (details) => {
+    this._localNotificationEvent = PushNotificationAndroid.addEventListener('localNotification', (details) => {
       console.log('localNotification => ', details);
     });
 
-    PushNotificationAndroid.addEventListener('notification', (details) => {
+    this._notificationEvent = PushNotificationAndroid.addEventListener('notification', (details) => {
       console.log('remoteNotification => ', details);
     });
 
-    PushNotificationAndroid.addEventListener('refreshToken', (token) => {
+    this._refreshTokenEvent = PushNotificationAndroid.addEventListener('refreshToken', (token) => {
       console.log('remoteRefreshToken => ', token);
     });
   }
 
   componentWillUnMount() {
-    PushNotificationAndroid.removeEventListener('localNotification');
-    PushNotificationAndroid.removeEventListener('notification');
-    PushNotificationAndroid.removeEventListener('refreshToken'); 
+    this._localNotificationEvent.remove();
+    this._notificationEvent.remove();
+    this._refreshTokenEvent.remove();
+
+    // You can remove all listener events
+    PushNotificationAndroid.removeAllListeners('localNotification');
+    PushNotificationAndroid.removeAllListeners('notification');
+    PushNotificationAndroid.removeAllListeners('refreshToken'); 
   }
 
   sendLocalNotificationNormal = () => {    
