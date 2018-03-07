@@ -44,22 +44,19 @@ const notify = (details) => {
 
 const addEventListener = (event, callback) => {
   if (event == 'localNotification') {
-      NativeAppEventEmitter.addListener('FCMLocalNotificationReceived', callback);
-      return;
+      return NativeAppEventEmitter.addListener('FCMLocalNotificationReceived', callback);
   }
 
   if (event == 'notification') {
-      NativeAppEventEmitter.addListener('FCMNotificationReceived', callback);
-      return;
+      return NativeAppEventEmitter.addListener('FCMNotificationReceived', callback);
   }
 
   if (event == 'refreshToken') {
-      NativeAppEventEmitter.addListener('FCMTokenRefreshed', callback);
-      return;
+      return NativeAppEventEmitter.addListener('FCMTokenRefreshed', callback);
   }
 }
 
-const removeEventListener = (event) => {
+const removeAllListeners = (event) => {
   if (event == 'localNotification') {
       NativeAppEventEmitter.removeAllListeners('FCMLocalNotificationReceived');
       return;
@@ -82,7 +79,8 @@ export default {
   cancelLocalNotifications,
   getScheduledLocalNotifications,
   addEventListener,
-  removeEventListener,
+  removeEventListener: removeAllListeners,  //  Compatible
+  removeAllListeners,
   getInitialNotification,
   getToken,
   notify,
