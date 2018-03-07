@@ -61,17 +61,17 @@ const addEventListener = (event, callback) => {
 
 const removeEventListener = (event) => {
   if (event == 'localNotification') {
-      NativeAppEventEmitter.removeEventListener('FCMLocalNotificationReceived');
+      NativeAppEventEmitter.removeAllListeners('FCMLocalNotificationReceived');
       return;
   }
 
   if (event == 'notification') {
-      NativeAppEventEmitter.removeEventListener('FCMNotificationReceived');
+      NativeAppEventEmitter.removeAllListeners('FCMNotificationReceived');
       return;
   }
 
   if (event == 'refreshToken') {
-      NativeAppEventEmitter.removeEventListener('FCMTokenRefreshed');
+      NativeAppEventEmitter.removeAllListeners('FCMTokenRefreshed');
       return;
   }  
 }
