@@ -32,6 +32,17 @@ public class MessagingService extends FirebaseMessagingService {
         sendOrderedBroadcast(i, null);
     }
 
+    @Override
+    public void onNewToken(String token) {
+        Log.d(TAG, "Refreshed token: " + token);
+
+        Intent i = new Intent(Constants.INTENT_RECEIVE_REMOTE_REFRESH_TOKEN);
+        Bundle bundle = new Bundle();
+        bundle.putString("token", token);
+        i.putExtras(bundle);
+        sendBroadcast(i);
+    }
+
     public void buildLocalNotification(RemoteMessage remoteMessage) {
         if (remoteMessage.getData() == null){
             return;
