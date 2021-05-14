@@ -32,4 +32,5 @@ dependencies {
     implementation "com.facebook.react:react-native:+"
     implementation 'com.google.firebase:firebase-core:+'
     implementation 'com.google.firebase:firebase-messaging:+'
+    implementation 'com.google.firebase:firebase-iid:+'
 }
